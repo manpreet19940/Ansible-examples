@@ -1,0 +1,26 @@
+--- 
+# Prerequisites on localhost (Ansible Controller) to run Ansible Azure modules
+
+- name: Check if sudo exists (if you are on Azure cloud shell it may not exist)
+  shell: command -v sudo >/dev/null 2>&1
+  register: sudo_exists
+  changed_when: false
+  ignore_errors: yes
+  
+- block:
+  - name: ensure python pip is installed.
+    include_tasks: install-pip.yml
+      
+  - name: ensure prerequisite pip packages
+    pip:
+      name: '{{item}}'
+      state: present
+    with_items:
+    - ansible[azure]
+    - pywinrm
+  become: true
+  when: sudo_exists is not failed
+
+- name: Fail if Ansible < 2.5
+  fail: msg="Ansible 2.5+ required"
+  when: ansible_version.major <= 2 and ansible_version.minor < 5

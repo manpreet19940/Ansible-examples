@@ -1,0 +1,77 @@
+# RG where the VM goes.
+rg_name: TestRG
+location: eastus
+
+# VM Details.
+vm_name: TestVM
+vm_size: Standard_D2_v2
+
+# Naming Conventions for related resources.
+vm_pubip_name: '{{vm_name}}-ip'
+vm_nic_name: '{{vm_name}}-nic'
+vm_vnet_name: 'vnet0'
+vm_nsg_name: '{{vm_name}}-nsg'
+vm_subnet_name: 'subnet0'
+
+# IP and Network Details.
+vm_ip_allocation: Static
+
+# Allow VNETs to be stored in a different RG.
+vm_vnet_rg_name: 'vnets'
+
+# Create VMs with public IP or not?
+create_vms_with_public_ip: true
+
+# VM Image.
+vm_os_type: Linux
+vm_image:
+  publisher: Canonical
+  offer: UbuntuServer
+  sku: 16.04.0-LTS
+  version: latest
+
+# VM Tags.
+vm_tags:
+  ansible_managed: "true"
+
+# NSG Rules for VM.
+vm_nsg_rules:
+- name: 'SSH'
+  protocol: Tcp
+  source_address_prefix: '{{ansible_machine_ip}}/32'
+  destination_port_range: 22
+  access: Allow
+  priority: 101
+  direction: Inbound
+- name: 'HTTP_80'
+  protocol: Tcp
+  source_address_prefix: '{{ansible_machine_ip}}/32'
+  destination_port_range: 80
+  access: Allow
+  priority: 111
+  direction: Inbound
+- name: 'HTTPS'
+  protocol: Tcp
+  source_address_prefix: '{{ansible_machine_ip}}/32'
+  destination_port_range: 443
+  access: Allow
+  priority: 121
+  direction: Inbound
+- name: 'HTTP_8080'
+  protocol: Tcp
+  source_address_prefix: '{{ansible_machine_ip}}/32'
+  destination_port_range: 8080
+  access: Allow
+  priority: 131
+  direction: Inbound
+
+# Connection Details.
+ssh_pubkey_path: /home/{{lookup('env','USER')}}/.ssh/id_rsa.pub
+vm_username: azureuser
+vault_vm_password: !vault |
+  $ANSIBLE_VAULT;1.1;AES256
+  32626638356563386164663538313862386431656664333265356166306466303636646436626134
+  3061373130313736636136373935346436376239626530340a653935303363613066366332626130
+  34303664383236663137363166633239336130626562633961323937643635643239653534323664
+  3031636533636138310a373466383534656631356362366536376666363365373338316464313864
+  3466

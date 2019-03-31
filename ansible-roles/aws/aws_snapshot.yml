@@ -1,0 +1,8 @@
+- hosts: localhost
+connection: local
+ 
+vars_files:
+  - vars/snapshotenv.yml
+tasks:
+  - include: roles/aws/tasks/create_delete_snapshot.yml
+    when: add_snapshot == "true" or del_snapshot == "true"

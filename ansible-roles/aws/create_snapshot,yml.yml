@@ -1,0 +1,21 @@
+- name: Get facts for ec instance | Fetch id instance {{ name }}
+ ec2_remote_facts:
+   filters:
+     "tag:Name": "{{ name }}"
+ register: ec2_instances
+ 
+- name: get instance facts for the snapshot | Get snapshot id
+  ec2_snapshot_facts:
+    filters:
+      "tag:id_instance": "{{ ec2_instances.instances.0.id }}"
+  register: id_snapshot
+   
+- name: Create snapshot | Create snapshot on volume {{ add_volume_device_name }}
+  ec2_snapshot:
+    instance_id: "{{ ec2_instances.instances.0.id }}"
+    device_name: "{{ add_volume_device_name }}"
+    snapshot_tags:
+        Name: "{{ name }}"
+        id_instance: "{{ ec2_instances.instances.0.id }}"
+        volume: "{{ add_volume_device_name }}"
+ 
